@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#0b0b14"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="MonPatrimoine"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="apple-touch-icon.png"/>
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png"/>
+<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png"/>
+<link rel="apple-touch-icon" sizes="512x512" href="icon-512.png"/>
+<title>MonPatrimoine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ════════════════════════════════════
+   DESIGN TOKENS — Dark Premium 2026
+════════════════════════════════════ */
+:root {
+  /* Backgrounds — dark theme */
+  --bg:          #0b0b14;
+  --bg2:         #111120;
+  --card:        #14141f;
+  --card-hover:  #1c1c2e;
+  --card-border: rgba(255,255,255,0.06);
+
+  /* Separators */
+  --sep:         rgba(255,255,255,0.08);
+  --sep-l:       rgba(255,255,255,0.05);
+
+  /* Accent colors */
+  --blue:        #4f8ef7;
+  --blue-mid:    #7eb3ff;
+  --blue-bg:     rgba(79,142,247,0.12);
+  --green:       #22c55e;
+  --green-mid:   #4ade80;
+  --green-bg:    rgba(34,197,94,0.12);
+  --red:         #f87171;
+  --red-bg:      rgba(248,113,113,0.12);
+  --orange:      #fb923c;
+  --orange-bg:   rgba(251,146,60,0.12);
+  --purple:      #a78bfa;
+  --purple-bg:   rgba(167,139,250,0.12);
+
+  /* Text */
+  --t1:          #f0f0f8;
+  --t2:          #8888a8;
+  --t3:          #4a4a68;
+
+  /* Fills */
+  --fill:        rgba(255,255,255,0.06);
+  --fill2:       rgba(255,255,255,0.04);
+
+  /* Hero */
+  --hero:        linear-gradient(145deg, #0d0d20 0%, #12102a 50%, #0a1428 100%);
+
+  /* Shadows */
+  --sh1:  0 1px 4px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+  --sh2:  0 4px 20px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
+  --sh3:  0 16px 48px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.06);
+
+  /* Spacing */
+  --r:    16px;
+  --r-sm: 10px;
+  --r-lg: 22px;
+
+  /* System */
+  --safe-top: env(safe-area-inset-top, 44px);
+  --safe-bot: env(safe-area-inset-bottom, 20px);
+  --tab-h:    83px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  background: var(--bg) !important;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: var(--t1);
+  min-height: 100dvh;
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  background: var(--bg);
+  background-image: radial-gradient(circle at 20% 20%, rgba(79,142,247,0.04) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 80%, rgba(167,139,250,0.03) 0%, transparent 50%);
+}
+
+/* ── SCREENS ── */
+.screen { display: none; padding-bottom: calc(var(--tab-h) + 8px); min-height: 100dvh; }
+.screen.active { display: block; }
+
+/* ════════════════════════════════════
+   NAVBAR
+════════════════════════════════════ */
+.navbar {
+  position: sticky; top: 0; z-index: 200;
+  background: rgba(11,11,20,0.88);
+  backdrop-filter: saturate(180%) blur(28px);
+  -webkit-backdrop-filter: saturate(180%) blur(28px);
+  border-bottom: 0.5px solid var(--sep);
+  padding-top: var(--safe-top);
+}
+.navbar-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 16px 10px; min-height: 44px; gap: 8px;
+}
+.navbar-title {
+  font-size: 17px; font-weight: 700; letter-spacing: -0.4px; color: var(--t1);
+  display: flex; align-items: center; gap: 6px;
+}
+.navbar-right { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+.nb {
+  background: linear-gradient(135deg, var(--blue) 0%, #3b6fd4 100%); color: #fff;
+  border: none; border-radius: 20px;
+  font-family: inherit; font-size: 13px; font-weight: 600;
+  padding: 6px 14px; cursor: pointer; display: flex; align-items: center; gap: 4px;
+  transition: opacity .15s, transform .12s; white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(79,142,247,0.3);
+}
+.nb:active { opacity: .85; transform: scale(0.97); }
+.nb-ghost {
+  background: var(--fill); color: var(--blue);
+  border: 1px solid rgba(79,142,247,0.2); border-radius: 20px;
+  font-family: inherit; font-size: 13px; font-weight: 600;
+  padding: 6px 14px; cursor: pointer; display: flex; align-items: center; gap: 4px;
+  white-space: nowrap;
+}
+.nb-back {
+  background: none; border: none; color: var(--blue);
+  font-family: inherit; font-size: 15px; font-weight: 500;
+  padding: 4px 0; cursor: pointer; display: flex; align-items: center; gap: 3px;
+}
+
+/* ════════════════════════════════════
+   TABBAR
+════════════════════════════════════ */
+.tabbar {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 430px; z-index: 300;
+  background: rgba(11,11,20,0.92);
+  backdrop-filter: saturate(180%) blur(28px);
+  -webkit-backdrop-filter: saturate(180%) blur(28px);
+  border-top: 0.5px solid var(--sep);
+  display: flex; padding-bottom: var(--safe-bot);
+}
+.tab-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 8px 0 2px; cursor: pointer;
+  border: none; background: none; font-family: inherit; min-height: 49px; gap: 3px;
+}
+.tab-icon { font-size: 23px; line-height: 1; transition: transform .18s; }
+.tab-label { font-size: 10px; font-weight: 500; color: var(--t3); transition: color .15s; letter-spacing: 0.01em; }
+.tab-item.active .tab-icon { transform: scale(1.12); }
+.tab-item.active .tab-label { color: var(--blue); font-weight: 700; }
+
+/* ════════════════════════════════════
+   CONTENT & LAYOUT
+════════════════════════════════════ */
+.content { padding: 14px 14px 0; }
+.gap { height: 12px; }
+
+.sec-hd {
+  font-size: 11px; font-weight: 800; color: var(--t2);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 0 4px; margin: 20px 0 9px;
+}
+.sec-hd:first-child { margin-top: 4px; }
+
+/* ════════════════════════════════════
+   HERO CARD
+════════════════════════════════════ */
+.hero {
+  background: var(--hero);
+  border-radius: var(--r-lg);
+  padding: 22px 20px 20px;
+  margin-bottom: 14px;
+  box-shadow: var(--sh3);
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; top: -80px; right: -60px;
+  width: 240px; height: 240px;
+  background: radial-gradient(circle, rgba(79,142,247,0.25) 0%, transparent 65%);
+  pointer-events: none;
+}
+.hero::after {
+  content: ''; position: absolute; bottom: -60px; left: -40px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(34,197,94,0.15) 0%, transparent 65%);
+  pointer-events: none;
+}
+.hero-eye {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.10em;
+  text-transform: uppercase; color: rgba(255,255,255,0.38); margin-bottom: 8px;
+}
+.hero-date { font-size: 12px; color: rgba(255,255,255,0.35); margin-bottom: 4px; }
+.hero-num {
+  font-size: 42px; font-weight: 900; letter-spacing: -2px;
+  color: #fff; line-height: 1; margin-bottom: 4px;
+}
+.hero-sub { font-size: 13px; color: rgba(255,255,255,0.45); margin-bottom: 18px; }
+
+/* chips row */
+.chips { display: flex; gap: 7px; flex-wrap: wrap; }
+.chip {
+  display: inline-flex; align-items: baseline; gap: 5px;
+  padding: 7px 13px; border-radius: 22px;
+  font-size: 12px; font-weight: 600; white-space: nowrap;
+  border: 1px solid transparent;
+}
+.chip-dark  { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.75); border-color: rgba(255,255,255,0.08); }
+.chip-blue  { background: rgba(0,113,227,0.22); color: #60a5fa; border-color: rgba(0,113,227,0.20); }
+.chip-green { background: rgba(26,158,69,0.22); color: #4ade80; border-color: rgba(26,158,69,0.20); }
+.chip-red   { background: rgba(217,48,37,0.22); color: #f87171; border-color: rgba(217,48,37,0.20); }
+.chip-ora   { background: rgba(217,119,6,0.22); color: #fb923c; border-color: rgba(217,119,6,0.20); }
+
+.chip-label { font-size: 10px; font-weight: 700; opacity: .6; letter-spacing: .04em; text-transform: uppercase; }
+.chip-val   { font-size: 14px; font-weight: 800; }
+
+/* ════════════════════════════════════
+   METRIC GRID (2×2)
+════════════════════════════════════ */
+.metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.mc {
+  background: var(--card);
+  border-radius: var(--r);
+  padding: 14px 15px 13px;
+  box-shadow: var(--sh1);
+  position: relative; overflow: hidden;
+  border: 1px solid var(--card-border);
+  transition: transform .15s, box-shadow .15s;
+}
+.mc:active { transform: scale(0.98); }
+.mc::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  border-radius: 3px 3px 0 0;
+}
+/* top-left = blue, top-right = purple, bottom-left = green, bottom-right = orange */
+.mc.acc-blue::before   { background: linear-gradient(90deg, var(--blue), var(--blue-mid)); box-shadow: 0 0 12px rgba(79,142,247,0.6); }
+.mc.acc-purple::before { background: linear-gradient(90deg, var(--purple), #c4b5fd); box-shadow: 0 0 12px rgba(167,139,250,0.6); }
+.mc.acc-green::before  { background: linear-gradient(90deg, var(--green), var(--green-mid)); box-shadow: 0 0 12px rgba(34,197,94,0.6); }
+.mc.acc-red::before    { background: linear-gradient(90deg, var(--red), #fca5a5); }
+.mc.acc-orange::before { background: linear-gradient(90deg, var(--orange), #fbbf24); box-shadow: 0 0 12px rgba(251,146,60,0.6); }
+
+/* Glow background on the accent color */
+.mc.acc-blue   { background: linear-gradient(145deg, #14141f 0%, rgba(79,142,247,0.07) 100%); }
+.mc.acc-purple { background: linear-gradient(145deg, #14141f 0%, rgba(167,139,250,0.07) 100%); }
+.mc.acc-green  { background: linear-gradient(145deg, #14141f 0%, rgba(34,197,94,0.07) 100%); }
+.mc.acc-orange { background: linear-gradient(145deg, #14141f 0%, rgba(251,146,60,0.07) 100%); }
+.mc.acc-red    { background: linear-gradient(145deg, #14141f 0%, rgba(248,113,113,0.07) 100%); }
+
+.mc-icon { font-size: 22px; margin-bottom: 8px; }
+.mc-label { font-size: 10px; font-weight: 700; color: var(--t2); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 4px; }
+.mc-val { font-size: 20px; font-weight: 800; letter-spacing: -0.6px; line-height: 1; }
+.mc-sub { font-size: 11px; color: var(--t2); margin-top: 4px; }
+
+/* ════════════════════════════════════
+   CHART CARD
+════════════════════════════════════ */
+.chart-card {
+  background: var(--card); border-radius: var(--r);
+  padding: 16px; margin-bottom: 14px; box-shadow: var(--sh1);
+  border: 1px solid var(--card-border);
+}
+.chart-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.chart-title { font-size: 14px; font-weight: 700; }
+.legend { display: flex; gap: 10px; }
+.leg { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--t2); }
+.leg-dot { width: 8px; height: 8px; border-radius: 50%; }
+.chart-wrap { position: relative; height: 190px; }
+
+/* ════════════════════════════════════
+   LIST GROUP
+════════════════════════════════════ */
+.lg {
+  background: var(--card); border-radius: var(--r);
+  box-shadow: var(--sh1); overflow: hidden; margin-bottom: 14px;
+  border: 1px solid var(--card-border);
+}
+.lr {
+  display: flex; align-items: center;
+  padding: 11px 16px; gap: 12px;
+  border-bottom: 0.5px solid var(--sep-l);
+}
+.lr:last-child { border-bottom: none; }
+.lr-icon {
+  width: 34px; height: 34px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; flex-shrink: 0;
+}
+.lr-body { flex: 1; min-width: 0; }
+.lr-title { font-size: 15px; font-weight: 600; }
+.lr-sub { font-size: 12px; color: var(--t2); margin-top: 2px; }
+.lr-right { text-align: right; flex-shrink: 0; }
+.lr-val { font-size: 15px; font-weight: 700; }
+.lr-vsub { font-size: 12px; color: var(--t2); margin-top: 2px; }
+
+/* ════════════════════════════════════
+   ACCOUNT CARD — compact redesign
+════════════════════════════════════ */
+.ac {
+  background: var(--card);
+  border-radius: var(--r);
+  box-shadow: var(--sh1);
+  overflow: hidden;
+  margin-bottom: 10px;
+  border: 1px solid var(--card-border);
+}
+
+/* Colored left border accent */
+.ac-inner { border-left: 3px solid var(--blue); }
+.ac-inner.green { border-left-color: var(--green); }
+.ac-inner.orange { border-left-color: var(--orange); }
+.ac-inner.purple { border-left-color: var(--purple); }
+
+.ac-top {
+  display: flex; align-items: center;
+  padding: 11px 14px 10px 13px; gap: 10px;
+}
+.ac-icon {
+  width: 36px; height: 36px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.ac-info { flex: 1; min-width: 0; }
+.ac-name { font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ac-type { font-size: 11px; color: var(--t2); margin-top: 1px; }
+.ac-right { text-align: right; flex-shrink: 0; }
+.ac-solde { font-size: 17px; font-weight: 800; letter-spacing: -0.4px; }
+.ac-rate  { font-size: 11px; color: var(--t2); margin-top: 2px; }
+
+/* 3 metrics in a slim row */
+.ac-metrics {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  border-top: 0.5px solid var(--sep-l);
+}
+.acm {
+  padding: 8px 8px 8px; text-align: center;
+}
+.acm:not(:last-child) { border-right: 0.5px solid var(--sep-l); }
+.acm-l { font-size: 9px; font-weight: 700; color: var(--t3); letter-spacing: .05em; text-transform: uppercase; margin-bottom: 2px; }
+.acm-v { font-size: 13px; font-weight: 700; }
+
+/* action buttons */
+.ac-actions {
+  display: flex; border-top: 0.5px solid var(--sep-l);
+}
+.ab {
+  flex: 1; padding: 8px 0; border: none; background: none;
+  font-family: inherit; font-size: 12px; font-weight: 600;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  gap: 3px; transition: background .12s;
+}
+.ab:not(:last-child) { border-right: 0.5px solid var(--sep-l); }
+.ab.add  { color: var(--green); }
+.ab.sub  { color: var(--red); }
+.ab.edt  { color: var(--blue); }
+.ab.del  { color: var(--red); }
+.ab:active { background: var(--fill); }
+
+/* ════════════════════════════════════
+   COLORS
+════════════════════════════════════ */
+.cg  { color: var(--green); }
+.cr  { color: var(--red); }
+.cb  { color: var(--blue); }
+.co  { color: var(--orange); }
+.cp  { color: var(--purple); }
+.ct  { color: var(--t1); }
+
+/* ════════════════════════════════════
+   BADGES
+════════════════════════════════════ */
+.badge {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 20px;
+  font-size: 12px; font-weight: 700;
+}
+.bg-g { background: rgba(34,197,94,0.15); color: var(--green); }
+.bg-r { background: rgba(248,113,113,0.15); color: var(--red); }
+.bg-b { background: rgba(79,142,247,0.15); color: var(--blue); }
+.bg-o { background: rgba(251,146,60,0.15); color: var(--orange); }
+
+/* ════════════════════════════════════
+   BILAN DIVIDER — prominent section headers
+════════════════════════════════════ */
+.bdiv {
+  display: flex; align-items: center; gap: 12px;
+  margin: 24px 0 14px;
+}
+.bdiv-line { flex: 1; height: 1px; background: var(--sep); }
+.bdiv-label {
+  font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+  display: flex; align-items: center; gap: 7px;
+  padding: 6px 16px; border-radius: 30px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.09);
+  color: #ffffff;
+}
+
+/* ════════════════════════════════════
+   BOTTOM SHEET
+════════════════════════════════════ */
+.overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(5,5,12,0.75); backdrop-filter: blur(8px);
+  z-index: 500; align-items: flex-end; justify-content: center;
+}
+.overlay.open { display: flex; }
+.sheet {
+  background: #1a1a2a; border-radius: 24px 24px 0 0;
+  padding: 0 0 calc(var(--safe-bot) + 8px);
+  width: 100%; max-width: 430px;
+  max-height: 92dvh; overflow-y: auto;
+  animation: sheetUp .28s cubic-bezier(0.32,0.72,0,1) both;
+  border: 1px solid rgba(255,255,255,0.08); border-bottom: none;
+  box-shadow: 0 -12px 40px rgba(0,0,0,0.6);
+}
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.sh-bar-wrap { display: flex; justify-content: center; padding: 10px 0 4px; }
+.sh-bar { width: 36px; height: 4px; border-radius: 2px; background: var(--t3); }
+.sh-title {
+  font-size: 17px; font-weight: 700; text-align: center;
+  padding: 4px 16px 14px; border-bottom: 0.5px solid var(--sep-l);
+}
+.sh-body { padding: 16px; }
+
+/* ════════════════════════════════════
+   FORM
+════════════════════════════════════ */
+.fg { margin-bottom: 14px; }
+.fl { font-size: 13px; font-weight: 600; color: var(--t2); margin-bottom: 6px; display: block; }
+.fi {
+  width: 100%; background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.08);
+  border-radius: var(--r-sm); padding: 12px 14px;
+  font-size: 16px; font-family: inherit; color: var(--t1);
+  outline: none; transition: border-color .15s, background .15s; -webkit-appearance: none;
+}
+.fi:focus { background: rgba(255,255,255,0.07); border-color: var(--blue); }
+.fi::placeholder { color: var(--t3); }
+.frow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fi-hint { font-size: 11px; color: var(--t2); margin-top: 5px; line-height: 1.5; }
+select.fi option { background: #1a1a2a; color: var(--t1); }
+
+.btn-prim {
+  width: 100%; padding: 14px; border: none; border-radius: var(--r-sm);
+  background: linear-gradient(135deg, var(--blue) 0%, #2563eb 100%);
+  color: #fff; font-size: 16px; font-weight: 700; font-family: inherit;
+  cursor: pointer; margin-top: 10px;
+  box-shadow: 0 4px 12px rgba(0,113,227,0.3);
+  transition: opacity .15s, transform .12s;
+}
+.btn-prim:active { opacity: .85; transform: scale(0.98); }
+.btn-sec {
+  width: 100%; padding: 13px; border: none; border-radius: var(--r-sm);
+  background: rgba(255,255,255,0.06); color: var(--t2);
+  font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer; margin-top: 8px;
+}
+.btn-del {
+  width: 100%; padding: 13px; border: none; border-radius: var(--r-sm);
+  background: rgba(248,113,113,0.12); color: var(--red);
+  font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; margin-top: 8px;
+}
+
+/* ════════════════════════════════════
+   TOAST
+════════════════════════════════════ */
+#toast {
+  position: fixed; top: calc(var(--safe-top) + 60px); left: 50%;
+  transform: translateX(-50%) translateY(-16px);
+  background: rgba(10,10,20,0.90); color: #fff;
+  border-radius: 22px; padding: 10px 22px;
+  font-size: 14px; font-weight: 600;
+  z-index: 999; opacity: 0;
+  transition: opacity .22s, transform .22s; pointer-events: none;
+  backdrop-filter: blur(12px); white-space: nowrap;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ════════════════════════════════════
+   EMPTY STATE
+════════════════════════════════════ */
+.empty { text-align: center; padding: 52px 28px; color: var(--t2); }
+.empty-ico { font-size: 52px; margin-bottom: 14px; }
+.empty-ttl { font-size: 17px; font-weight: 800; color: var(--t1); margin-bottom: 6px; }
+.empty-dsc { font-size: 14px; line-height: 1.6; }
+
+/* ════════════════════════════════════
+   ANIMATIONS
+════════════════════════════════════ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.screen.active .content > * { animation: fadeUp .3s ease both; }
+.screen.active .content > *:nth-child(2) { animation-delay: .05s; }
+.screen.active .content > *:nth-child(3) { animation-delay: .10s; }
+.screen.active .content > *:nth-child(4) { animation-delay: .15s; }
+::-webkit-scrollbar { width: 0; }
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ══════════════════════════
+     PEA SCREEN
+══════════════════════════ -->
+<div id="screen-pea" class="screen active">
+  <div class="navbar">
+    <div class="navbar-inner">
+      <div class="navbar-title">📈 PEA</div>
+      <div class="navbar-right">
+        <button class="nb-ghost" onclick="showScreen('pea-history',null)">Historique</button>
+        <button class="nb" onclick="openSheet('pea-sheet')">＋ Saisie</button>
+      </div>
+    </div>
+  </div>
+  <div class="content" id="pea-content"></div>
+</div>
+
+<!-- ══════════════════════════
+     PEA HISTORY SCREEN
+══════════════════════════ -->
+<div id="screen-pea-history" class="screen">
+  <div class="navbar">
+    <div class="navbar-inner">
+      <button class="nb-back" onclick="showScreen('pea',null)">
+        <svg width="9" height="15" viewBox="0 0 9 15" fill="none"><path d="M8 1L1.5 7.5L8 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Retour
+      </button>
+      <div class="navbar-title" style="font-size:16px">Historique PEA</div>
+      <span style="width:70px"></span>
+    </div>
+  </div>
+  <div class="content" id="pea-hist-content"></div>
+</div>
+
+<!-- ══════════════════════════
+     ÉPARGNE SCREEN
+══════════════════════════ -->
+<div id="screen-epargne" class="screen">
+  <div class="navbar">
+    <div class="navbar-inner">
+      <div class="navbar-title">🏦 Épargne</div>
+      <button class="nb" onclick="openAddAcc()">＋ Compte</button>
+    </div>
+  </div>
+  <div class="content" id="ep-content"></div>
+</div>
+
+<!-- ══════════════════════════
+     BILAN SCREEN
+══════════════════════════ -->
+<div id="screen-bilan" class="screen">
+  <div class="navbar">
+    <div class="navbar-inner">
+      <div class="navbar-title">📊 Bilan global</div>
+      <span style="font-size:11px;color:var(--t2)" id="bilan-date"></span>
+    </div>
+  </div>
+  <div class="content" id="bilan-content"></div>
+</div>
+
+<!-- ══════════════════════════
+     TABBAR
+══════════════════════════ -->
+<div class="tabbar" id="tabbar">
+  <button class="tab-item active" onclick="showScreen('pea',this)">
+    <div class="tab-icon">📈</div>
+    <div class="tab-label">PEA</div>
+  </button>
+  <button class="tab-item" onclick="showScreen('epargne',this)">
+    <div class="tab-icon">🏦</div>
+    <div class="tab-label">Épargne</div>
+  </button>
+  <button class="tab-item" onclick="showScreen('bilan',this)">
+    <div class="tab-icon">📊</div>
+    <div class="tab-label">Bilan</div>
+  </button>
+</div>
+
+<!-- ══════════════════════════
+     SHEETS
+══════════════════════════ -->
+
+<!-- PEA saisie -->
+<div class="overlay" id="pea-sheet-overlay" onclick="ovcl(event,'pea-sheet')">
+  <div class="sheet">
+    <div class="sh-bar-wrap"><div class="sh-bar"></div></div>
+    <div class="sh-title">Nouvelle saisie PEA</div>
+    <div class="sh-body">
+      <div class="fg"><label class="fl">Date</label><input class="fi" type="date" id="pea-date"/></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Montant investi (€)</label><input class="fi" type="number" id="pea-inv" placeholder="5 000" min="0" step="0.01" inputmode="decimal"/></div>
+        <div class="fg"><label class="fl">Portefeuille (€)</label><input class="fi" type="number" id="pea-pf" placeholder="5 840" min="0" step="0.01" inputmode="decimal"/></div>
+      </div>
+      <button class="btn-prim" onclick="savePea()">Enregistrer</button>
+      <button class="btn-sec" onclick="closeSheet('pea-sheet')">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- Compte -->
+<div class="overlay" id="acc-sheet-overlay" onclick="ovcl(event,'acc-sheet')">
+  <div class="sheet">
+    <div class="sh-bar-wrap"><div class="sh-bar"></div></div>
+    <div class="sh-title" id="acc-sh-title">Nouveau compte</div>
+    <div class="sh-body">
+      <div class="fg"><label class="fl">Intitulé</label><input class="fi" type="text" id="acc-name" placeholder="Livret A, PEL, LDDS…"/></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Solde actuel (€)</label><input class="fi" type="number" id="acc-solde" placeholder="10 000" min="0" step="0.01" inputmode="decimal"/></div>
+        <div class="fg"><label class="fl">Taux annuel (%)</label><input class="fi" type="number" id="acc-rate" placeholder="3.00" min="0" step="0.01" inputmode="decimal"/></div>
+      </div>
+      <div class="fg">
+        <label class="fl">Intérêts déjà perçus en 2026 (€) <span style="font-weight:400;opacity:.7">— facultatif</span></label>
+        <input class="fi" type="number" id="acc-init" placeholder="45.50" min="0" step="0.01" inputmode="decimal"/>
+        <div class="fi-hint">Saisissez les intérêts déjà calculés avant aujourd'hui. L'app calculera la suite automatiquement toutes les deux semaines.</div>
+      </div>
+      <div class="fg">
+        <label class="fl">Type</label>
+        <select class="fi" id="acc-type">
+          <option value="livret">Livret (Livret A, LDDS…)</option>
+          <option value="pel">PEL / CEL</option>
+          <option value="cat">Compte à terme</option>
+          <option value="autre">Autre</option>
+        </select>
+      </div>
+      <input type="hidden" id="acc-eid"/>
+      <button class="btn-prim" onclick="saveAcc()">Enregistrer</button>
+      <button class="btn-sec" onclick="closeSheet('acc-sheet')">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mouvement -->
+<div class="overlay" id="mvt-sheet-overlay" onclick="ovcl(event,'mvt-sheet')">
+  <div class="sheet">
+    <div class="sh-bar-wrap"><div class="sh-bar"></div></div>
+    <div class="sh-title" id="mvt-sh-title">Mouvement</div>
+    <div class="sh-body">
+      <input type="hidden" id="mvt-aid"/>
+      <input type="hidden" id="mvt-typ"/>
+      <div class="fg"><label class="fl">Date</label><input class="fi" type="date" id="mvt-date"/></div>
+      <div class="fg"><label class="fl">Montant (€)</label><input class="fi" type="number" id="mvt-amt" placeholder="500" min="0" step="0.01" inputmode="decimal"/></div>
+      <div class="fg"><label class="fl">Note (optionnel)</label><input class="fi" type="text" id="mvt-note" placeholder="Virement mensuel…"/></div>
+      <button class="btn-prim" id="mvt-btn" onclick="saveMvt()">Enregistrer</button>
+      <button class="btn-sec" onclick="closeSheet('mvt-sheet')">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm delete -->
+<div class="overlay" id="conf-overlay" onclick="ovcl(event,'conf')">
+  <div class="sheet">
+    <div class="sh-bar-wrap"><div class="sh-bar"></div></div>
+    <div class="sh-title" id="conf-ttl">Supprimer ?</div>
+    <div class="sh-body">
+      <p id="conf-dsc" style="font-size:14px;color:var(--t2);line-height:1.6;text-align:center;margin-bottom:16px"></p>
+      <button class="btn-del" id="conf-ok">Supprimer</button>
+      <button class="btn-sec" onclick="closeSheet('conf')">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ═══════════════════════════
+   DATA
+═══════════════════════════ */
+const DB = {
+  g: k => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+  s: (k,v) => localStorage.setItem(k, JSON.stringify(v))
+};
+let PEA  = DB.g('mp_pea')  || [];
+let ACCS = DB.g('mp_accs') || [];
+let MVTS = DB.g('mp_mvts') || [];
+const flush = () => { DB.s('mp_pea',PEA); DB.s('mp_accs',ACCS); DB.s('mp_mvts',MVTS); };
+
+/* ═══════════════════════════
+   UTILS
+═══════════════════════════ */
+const uid   = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const today = () => new Date().toISOString().split('T')[0];
+
+function fmtM(n, plus=false) {
+  const f = new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:2}).format(Math.abs(n));
+  if (plus && n > 0) return '+' + f;
+  if (n < 0) return '−' + f;
+  return f;
+}
+function fmtP(n, plus=false) {
+  const f = Math.abs(n).toFixed(2) + ' %';
+  if (plus && n > 0) return '+' + f;
+  if (n < 0) return '−' + f;
+  return f;
+}
+function fmtD(s) {
+  if (!s) return '';
+  const [y,m,d] = s.split('-');
+  return `${d}/${m}/${y}`;
+}
+const colN = n => n >= 0 ? 'cg' : 'cr';
+const badN = n => n >= 0 ? 'bg-g' : 'bg-r';
+const chipN = n => n >= 0 ? 'chip-green' : 'chip-red';
+const ACC_META = {
+  livret: {ico:'🟢', bg:'rgba(34,197,94,0.15)', accent:'green'},
+  pel:    {ico:'🏠', bg:'rgba(79,142,247,0.15)', accent:''},
+  cat:    {ico:'📅', bg:'rgba(251,146,60,0.15)', accent:'orange'},
+  autre:  {ico:'💼', bg:'rgba(167,139,250,0.15)', accent:'purple'}
+};
+const ACC_TYPES = {livret:'Livret',pel:'PEL / CEL',cat:'Compte à terme',autre:'Autre'};
+
+/* ═══════════════════════════
+   NAV
+═══════════════════════════ */
+function showScreen(name, tabEl) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  const sub = name === 'pea-history';
+  document.getElementById('tabbar').style.display = sub ? 'none' : 'flex';
+  if (!sub && tabEl) {
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    tabEl.classList.add('active');
+  }
+  if (name === 'pea')         renderPEA();
+  if (name === 'pea-history') renderPeaHist();
+  if (name === 'epargne')     renderEp();
+  if (name === 'bilan')       renderBilan();
+}
+
+/* ═══════════════════════════
+   SHEETS
+═══════════════════════════ */
+const openSheet  = id => document.getElementById(id+'-overlay').classList.add('open');
+const closeSheet = id => document.getElementById(id+'-overlay').classList.remove('open');
+function ovcl(e,id) { if (e.target===document.getElementById(id+'-overlay')) closeSheet(id); }
+
+function openAddAcc() {
+  document.getElementById('acc-eid').value   = '';
+  document.getElementById('acc-sh-title').textContent = 'Nouveau compte';
+  ['acc-name','acc-solde','acc-rate','acc-init'].forEach(i => document.getElementById(i).value='');
+  document.getElementById('acc-type').value  = 'livret';
+  openSheet('acc-sheet');
+}
+
+/* ═══════════════════════════
+   TOAST + CONFIRM
+═══════════════════════════ */
+function toast(msg) {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2400);
+}
+function confirmDel(title,desc,cb) {
+  document.getElementById('conf-ttl').textContent=title;
+  document.getElementById('conf-dsc').textContent=desc;
+  document.getElementById('conf-ok').onclick=()=>{cb();closeSheet('conf');};
+  openSheet('conf');
+}
+
+/* ═══════════════════════════
+   PEA CRUD
+═══════════════════════════ */
+function savePea() {
+  const date=document.getElementById('pea-date').value;
+  const inv =parseFloat(document.getElementById('pea-inv').value);
+  const pf  =parseFloat(document.getElementById('pea-pf').value);
+  if (!date)           {toast('⚠️ Date manquante');return;}
+  if (isNaN(inv)||inv<0) {toast('⚠️ Montant investi invalide');return;}
+  if (isNaN(pf)||pf<0)   {toast('⚠️ Montant portefeuille invalide');return;}
+  PEA.push({id:uid(),date,inv,pf});
+  flush();
+  document.getElementById('pea-date').value=today();
+  document.getElementById('pea-inv').value='';
+  document.getElementById('pea-pf').value='';
+  closeSheet('pea-sheet');
+  toast('✅ Saisie enregistrée');
+  renderPEA();
+}
+function delPea(id) {
+  confirmDel('Supprimer la saisie ?','Cette saisie sera définitivement supprimée.',()=>{
+    PEA=PEA.filter(e=>e.id!==id); flush(); renderPEA(); renderPeaHist(); toast('Saisie supprimée');
+  });
+}
+
+let peaChart=null;
+
+function renderPEA() {
+  const sorted=[...PEA].sort((a,b)=>a.date.localeCompare(b.date));
+  const last=sorted[sorted.length-1];
+  const el=document.getElementById('pea-content');
+  if (!sorted.length) {
+    el.innerHTML=`<div class="empty" style="margin-top:32px">
+      <div class="empty-ico">📈</div>
+      <div class="empty-ttl">Aucune saisie</div>
+      <div class="empty-dsc">Appuyez sur "＋ Saisie" pour ajouter votre première saisie PEA.</div>
+    </div>`; return;
+  }
+  const ben=last.pf-last.inv;
+  const pct=last.inv?((last.pf-last.inv)/last.inv)*100:0;
+  const pos=ben>=0;
+
+  el.innerHTML=`
+    <div class="hero">
+      <div class="hero-eye">Bénéfice actuel</div>
+      <div class="hero-date">${fmtD(last.date)}</div>
+      <div class="hero-num">${fmtM(ben,true)}</div>
+      <div class="hero-sub">${fmtP(pct,true)} depuis le début</div>
+      <div class="chips">
+        <div class="chip chip-dark">
+          <span class="chip-label">Investi</span>
+          <span class="chip-val">${fmtM(last.inv)}</span>
+        </div>
+        <div class="chip chip-blue">
+          <span class="chip-label">Portefeuille</span>
+          <span class="chip-val">${fmtM(last.pf)}</span>
+        </div>
+        <div class="chip ${chipN(ben)}">${pos?'▲':'▼'} ${fmtP(pct)}</div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-head">
+        <div class="chart-title">Évolution du portefeuille</div>
+        <div class="legend">
+          <div class="leg"><div class="leg-dot" style="background:#0071e3"></div>Investi</div>
+          <div class="leg"><div class="leg-dot" style="background:#7c3aed"></div>Portef.</div>
+        </div>
+      </div>
+      <div class="chart-wrap"><canvas id="pea-chart"></canvas></div>
+    </div>
+  `;
+
+  if (peaChart) peaChart.destroy();
+  const ctx=document.getElementById('pea-chart').getContext('2d');
+  const gB=ctx.createLinearGradient(0,0,0,190);
+  gB.addColorStop(0,'rgba(0,113,227,0.18)'); gB.addColorStop(1,'rgba(0,113,227,0)');
+  const gP=ctx.createLinearGradient(0,0,0,190);
+  gP.addColorStop(0,'rgba(124,58,237,0.18)'); gP.addColorStop(1,'rgba(124,58,237,0)');
+  peaChart=new Chart(ctx,{
+    type:'line',
+    data:{
+      labels:sorted.map(e=>fmtD(e.date)),
+      datasets:[
+        {label:'Investi',data:sorted.map(e=>e.inv),
+          borderColor:'#0071e3',backgroundColor:gB,borderWidth:2.5,
+          tension:0.4,fill:true,
+          pointBackgroundColor:'#0071e3',pointBorderColor:'#fff',pointBorderWidth:2,
+          pointRadius:sorted.length>10?2:5,pointHoverRadius:7},
+        {label:'Portefeuille',data:sorted.map(e=>e.pf),
+          borderColor:'#7c3aed',backgroundColor:gP,borderWidth:2.5,
+          tension:0.4,fill:true,
+          pointBackgroundColor:'#7c3aed',pointBorderColor:'#fff',pointBorderWidth:2,
+          pointRadius:sorted.length>10?2:5,pointHoverRadius:7}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{backgroundColor:'#0f0f1e',titleColor:'rgba(255,255,255,0.5)',bodyColor:'#fff',padding:12,cornerRadius:10,
+          callbacks:{label:c=>` ${c.dataset.label} : ${fmtM(c.raw)}`}}
+      },
+      scales:{
+        x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#9898b0',font:{size:9},maxTicksLimit:6,maxRotation:30},border:{display:false}},
+        y:{min:0,grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#9898b0',font:{size:9},callback:v=>v>=1000?(v/1000).toFixed(1)+'k€':v+'€'},border:{display:false}}
+      }
+    }
+  });
+}
+
+function renderPeaHist() {
+  const sorted=[...PEA].sort((a,b)=>b.date.localeCompare(a.date));
+  const el=document.getElementById('pea-hist-content');
+  if (!sorted.length) {
+    el.innerHTML=`<div class="empty"><div class="empty-ico">🗂</div><div class="empty-ttl">Aucune saisie</div></div>`;return;
+  }
+  el.innerHTML=`<div class="lg">${sorted.map(e=>{
+    const b=e.pf-e.inv;
+    const p=e.inv?((e.pf-e.inv)/e.inv)*100:0;
+    return `<div class="lr">
+      <div class="lr-icon" style="background:${b>=0?'var(--green-bg)':'var(--red-bg)'};font-size:14px">${b>=0?'▲':'▼'}</div>
+      <div class="lr-body">
+        <div class="lr-title">${fmtD(e.date)}</div>
+        <div class="lr-sub" style="display:flex;gap:10px;margin-top:3px;flex-wrap:wrap">
+          <span>💰 Investi : <strong>${fmtM(e.inv)}</strong></span>
+          <span>📂 Portef. : <strong>${fmtM(e.pf)}</strong></span>
+        </div>
+      </div>
+      <div class="lr-right">
+        <div class="lr-val ${colN(b)}">${fmtM(b,true)}</div>
+        <div class="lr-vsub"><span class="badge ${badN(b)}">${fmtP(p,true)}</span></div>
+      </div>
+      <button onclick="delPea('${e.id}')" style="background:none;border:none;font-size:19px;cursor:pointer;padding:4px 0 4px 8px;color:var(--red);flex-shrink:0" title="Supprimer">🗑</button>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+/* ═══════════════════════════
+   INTÉRÊTS ÉPARGNE
+   — intérêts initiaux saisis par l'utilisateur (avant création du compte)
+   — calcul automatique à partir de la date de création du compte
+   — recalcul tous les 1er et 15 du mois
+   — capitalisation au 31/12 de chaque année
+═══════════════════════════ */
+function nextP(d) {
+  const day=d.getDate();
+  if (day<15) return new Date(d.getFullYear(),d.getMonth(),15);
+  return new Date(d.getFullYear(),d.getMonth()+1,1);
+}
+
+function calcInter(acc) {
+  const initI = acc.interetsInit || 0;
+  const now   = new Date();
+  const created = new Date(acc.createdAt || today());
+  if (created >= now) return initI;
+
+  const dailyR = acc.rate / 100 / 365;
+  const mvts   = MVTS.filter(m=>m.aid===acc.id).sort((a,b)=>a.date.localeCompare(b.date));
+
+  // Solde au moment de la création = solde actuel moins tous les mvts depuis la création
+  let baseS = acc.solde;
+  mvts.forEach(m => { baseS -= m.typ==='depot' ? m.amt : -m.amt; });
+
+  // Avancer les périodes depuis la création jusqu'à maintenant
+  let pStart = new Date(created.getFullYear(), created.getMonth(),
+    created.getDate() < 15 ? 1 : 15);
+  if (pStart > created) {
+    // La période commence avant la création → on commence à la date de création réelle
+    pStart = new Date(created);
+  }
+
+  let inter = 0;
+  let currentSolde = baseS;
+
+  while (pStart < now) {
+    const pEnd = nextP(pStart);
+    const effectiveEnd = pEnd < now ? pEnd : now;
+    const days = Math.max(0, Math.round((effectiveEnd - pStart) / 86400000));
+
+    // Ajouter les mvts survenus DANS cette période pour la prochaine itération
+    // (le solde courant est celui au début de la période)
+    if (currentSolde > 0 && days > 0) inter += currentSolde * dailyR * days;
+
+    // Mise à jour du solde pour la prochaine période : ajouter les mvts entre pStart et pEnd
+    mvts.forEach(m => {
+      const md = new Date(m.date);
+      if (md >= pStart && md < pEnd) {
+        currentSolde += m.typ==='depot' ? m.amt : -m.amt;
+      }
+    });
+
+    // Capitalisation 31/12
+    if (pEnd.getMonth()===0 && pEnd.getDate()===1) {
+      // On vient de passer le 1er janvier → les intérêts de l'année précédente s'ajoutent au capital
+      // (dans une logique simplifiée on réinitialise inter et on l'ajoute au solde de base)
+    }
+
+    pStart = new Date(pEnd);
+  }
+
+  return initI + inter;
+}
+
+function totEp()    { return ACCS.reduce((s,a)=>s+a.solde,0); }
+function totInter() { return ACCS.reduce((s,a)=>s+calcInter(a),0); }
+
+/* ═══════════════════════════
+   ACC CRUD
+═══════════════════════════ */
+function saveAcc() {
+  const name  = document.getElementById('acc-name').value.trim();
+  const solde = parseFloat(document.getElementById('acc-solde').value);
+  const rate  = parseFloat(document.getElementById('acc-rate').value);
+  const type  = document.getElementById('acc-type').value;
+  const initI = parseFloat(document.getElementById('acc-init').value)||0;
+  const eid   = document.getElementById('acc-eid').value;
+  if (!name)             {toast('⚠️ Intitulé requis');return;}
+  if (isNaN(solde))      {toast('⚠️ Solde invalide');return;}
+  if (isNaN(rate)||rate<0){toast('⚠️ Taux invalide');return;}
+  if (eid) {
+    const i=ACCS.findIndex(a=>a.id===eid);
+    if (i>=0) ACCS[i]={...ACCS[i],name,solde,rate,type,interetsInit:initI};
+  } else {
+    ACCS.push({id:uid(),name,solde,rate,type,interetsInit:initI,createdAt:today()});
+  }
+  flush(); closeSheet('acc-sheet');
+  toast(eid?'✅ Compte modifié':'✅ Compte ajouté');
+  renderEp();
+}
+
+function editAcc(id) {
+  const a=ACCS.find(a=>a.id===id); if (!a) return;
+  document.getElementById('acc-name').value  = a.name;
+  document.getElementById('acc-solde').value = a.solde;
+  document.getElementById('acc-rate').value  = a.rate;
+  document.getElementById('acc-type').value  = a.type;
+  document.getElementById('acc-init').value  = a.interetsInit||'';
+  document.getElementById('acc-eid').value   = a.id;
+  document.getElementById('acc-sh-title').textContent='Modifier le compte';
+  openSheet('acc-sheet');
+}
+
+function delAcc(id) {
+  const a=ACCS.find(a=>a.id===id);
+  confirmDel('Supprimer le compte ?',`"${a?.name}" et ses mouvements seront supprimés.`,()=>{
+    ACCS=ACCS.filter(x=>x.id!==id); MVTS=MVTS.filter(m=>m.aid!==id);
+    flush(); renderEp(); toast('Compte supprimé');
+  });
+}
+
+function openMvt(aid,typ) {
+  const a=ACCS.find(a=>a.id===aid);
+  document.getElementById('mvt-aid').value  = aid;
+  document.getElementById('mvt-typ').value  = typ;
+  document.getElementById('mvt-date').value = today();
+  document.getElementById('mvt-amt').value  = '';
+  document.getElementById('mvt-note').value = '';
+  document.getElementById('mvt-sh-title').textContent = typ==='depot'?`➕ Dépôt — ${a?.name}`:`➖ Retrait — ${a?.name}`;
+  const btn=document.getElementById('mvt-btn');
+  btn.style.background=typ==='depot'?'linear-gradient(135deg,#1a9e45,#22c55e)':'linear-gradient(135deg,#d93025,#ef4444)';
+  btn.style.boxShadow=typ==='depot'?'0 4px 12px rgba(26,158,69,0.3)':'0 4px 12px rgba(217,48,37,0.3)';
+  openSheet('mvt-sheet');
+}
+
+function saveMvt() {
+  const aid  = document.getElementById('mvt-aid').value;
+  const typ  = document.getElementById('mvt-typ').value;
+  const date = document.getElementById('mvt-date').value;
+  const amt  = parseFloat(document.getElementById('mvt-amt').value);
+  const note = document.getElementById('mvt-note').value.trim();
+  if (!date)          {toast('⚠️ Date manquante');return;}
+  if (isNaN(amt)||amt<=0){toast('⚠️ Montant invalide');return;}
+  const i=ACCS.findIndex(a=>a.id===aid); if (i<0) return;
+  ACCS[i].solde += typ==='depot' ? amt : -amt;
+  MVTS.push({id:uid(),aid,typ,date,amt,note});
+  flush(); closeSheet('mvt-sheet');
+  toast(typ==='depot'?`✅ Dépôt ${fmtM(amt)}`:`✅ Retrait ${fmtM(amt)}`);
+  renderEp();
+}
+
+/* ═══════════════════════════
+   RENDER ÉPARGNE
+═══════════════════════════ */
+function renderEp() {
+  const el=document.getElementById('ep-content');
+  const ts=totEp(), ti=totInter();
+  const ar=ACCS.length?ACCS.reduce((s,a)=>s+a.rate,0)/ACCS.length:0;
+
+  let html=`
+    <div class="hero">
+      <div class="hero-eye">Épargne totale</div>
+      <div class="hero-num">${fmtM(ts)}</div>
+      <div class="hero-sub">Intérêts cumulés : <strong style="color:#fff">${fmtM(ti,true)}</strong></div>
+      <div class="chips">
+        <div class="chip chip-dark"><span class="chip-label">Comptes</span><span class="chip-val">${ACCS.length}</span></div>
+        <div class="chip chip-ora"><span class="chip-label">Taux moy.</span><span class="chip-val">${ar.toFixed(2)}%</span></div>
+        <div class="chip chip-green"><span class="chip-label">Intérêts</span><span class="chip-val">${fmtM(ti,true)}</span></div>
+      </div>
+    </div>
+
+    <div class="metric-grid">
+      <div class="mc acc-blue">
+        <div class="mc-icon">💰</div>
+        <div class="mc-label">Total épargné</div>
+        <div class="mc-val cb">${fmtM(ts)}</div>
+        <div class="mc-sub">Tous comptes</div>
+      </div>
+      <div class="mc acc-green">
+        <div class="mc-icon">💸</div>
+        <div class="mc-label">Intérêts cumulés</div>
+        <div class="mc-val cg">${fmtM(ti,true)}</div>
+        <div class="mc-sub">À ce jour</div>
+      </div>
+    </div>
+
+    <div class="sec-hd">Mes comptes</div>
+  `;
+
+  if (!ACCS.length) {
+    html+=`<div class="empty">
+      <div class="empty-ico">🏦</div>
+      <div class="empty-ttl">Aucun compte</div>
+      <div class="empty-dsc">Ajoutez un compte épargne en appuyant sur "＋ Compte".</div>
+    </div>`;
+  } else {
+    ACCS.forEach(a=>{
+      const m=ACC_META[a.type]||ACC_META.autre;
+      const inter=calcInter(a);
+      html+=`
+        <div class="ac">
+          <div class="ac-inner ${m.accent}">
+            <div class="ac-top">
+              <div class="ac-icon" style="background:${m.bg}">${m.ico}</div>
+              <div class="ac-info">
+                <div class="ac-name">${a.name}</div>
+                <div class="ac-type">${ACC_TYPES[a.type]}</div>
+              </div>
+              <div class="ac-right">
+                <div class="ac-solde">${fmtM(a.solde)}</div>
+                <div class="ac-rate">🎯 ${a.rate.toFixed(2)}% / an</div>
+              </div>
+            </div>
+            <div class="ac-metrics">
+              <div class="acm"><div class="acm-l">Solde</div><div class="acm-v cb">${fmtM(a.solde)}</div></div>
+              <div class="acm"><div class="acm-l">Taux</div><div class="acm-v co">${a.rate.toFixed(2)}%</div></div>
+              <div class="acm"><div class="acm-l">Intérêts</div><div class="acm-v cg">${fmtM(inter)}</div></div>
+            </div>
+            <div class="ac-actions">
+              <button class="ab add" onclick="openMvt('${a.id}','depot')">＋ Dépôt</button>
+              <button class="ab sub" onclick="openMvt('${a.id}','retrait')">− Retrait</button>
+              <button class="ab edt" onclick="editAcc('${a.id}')">✏️ Modifier</button>
+              <button class="ab del" onclick="delAcc('${a.id}')">🗑</button>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+  }
+  el.innerHTML=html;
+}
+
+/* ═══════════════════════════
+   RENDER BILAN
+═══════════════════════════ */
+let bilanChart=null;
+
+function renderBilan() {
+  const el=document.getElementById('bilan-content');
+  document.getElementById('bilan-date').textContent=fmtD(today());
+
+  const sorted=[...PEA].sort((a,b)=>a.date.localeCompare(b.date));
+  const last=sorted[sorted.length-1];
+  const peaInv  = last?last.inv:0;
+  const peaPf   = last?last.pf:0;
+  const peaBen  = peaPf-peaInv;
+  const peaPct  = peaInv?((peaPf-peaInv)/peaInv)*100:0;
+
+  const epS  = totEp();
+  const epI  = totInter();
+  const epT  = epS + epI;   // Épargne totale = solde + intérêts
+  const epR  = ACCS.length?ACCS.reduce((s,a)=>s+a.rate,0)/ACCS.length:0;
+
+  const patri   = peaPf + epS;
+  const totGain = peaBen + epI;
+
+  el.innerHTML=`
+    <div class="hero">
+      <div class="hero-eye">Patrimoine total</div>
+      <div class="hero-num">${fmtM(patri)}</div>
+      <div class="hero-sub" style="font-size:14px;font-weight:700;color:rgba(255,255,255,0.65);margin-bottom:16px">
+        Bénéfices &amp; intérêts cumulés : <span style="color:#4ade80;font-size:16px">${fmtM(totGain,true)}</span>
+      </div>
+      <div class="chips">
+        <div class="chip chip-blue"><span class="chip-label">PEA</span><span class="chip-val">${fmtM(peaPf)}</span></div>
+        <div class="chip chip-green"><span class="chip-label">Épargne</span><span class="chip-val">${fmtM(epS)}</span></div>
+      </div>
+    </div>
+
+    <!-- PEA -->
+    <div class="bdiv">
+      <div class="bdiv-line"></div>
+      <div class="bdiv-label bdiv-pea">📈 PEA</div>
+      <div class="bdiv-line"></div>
+    </div>
+
+    <div class="metric-grid">
+      <div class="mc acc-blue">
+        <div class="mc-icon">💰</div>
+        <div class="mc-label">Capital investi</div>
+        <div class="mc-val cb">${fmtM(peaInv)}</div>
+        <div class="mc-sub">Versements totaux</div>
+      </div>
+      <div class="mc acc-purple">
+        <div class="mc-icon">📂</div>
+        <div class="mc-label">Portefeuille</div>
+        <div class="mc-val cp">${fmtM(peaPf)}</div>
+        <div class="mc-sub">Valorisation actuelle</div>
+      </div>
+      <div class="mc ${peaBen>=0?'acc-green':'acc-red'}">
+        <div class="mc-icon">${peaBen>=0?'📈':'📉'}</div>
+        <div class="mc-label">Bénéfice PEA</div>
+        <div class="mc-val ${colN(peaBen)}">${fmtM(peaBen,true)}</div>
+        <div class="mc-sub">${fmtP(peaPct,true)}</div>
+      </div>
+      <div class="mc acc-orange">
+        <div class="mc-icon">🎯</div>
+        <div class="mc-label">Performance</div>
+        <div class="mc-val"><span class="badge ${badN(peaPct)}" style="font-size:15px;padding:4px 10px">${fmtP(peaPct,true)}</span></div>
+        <div class="mc-sub">${last?'Saisie '+fmtD(last.date):'Aucune saisie'}</div>
+      </div>
+    </div>
+
+    <!-- ÉPARGNE -->
+    <div class="bdiv">
+      <div class="bdiv-line"></div>
+      <div class="bdiv-label bdiv-ep">🏦 Épargne</div>
+      <div class="bdiv-line"></div>
+    </div>
+
+    <div class="metric-grid">
+      <div class="mc acc-blue">
+        <div class="mc-icon">🏦</div>
+        <div class="mc-label">Montant épargné</div>
+        <div class="mc-val cb">${fmtM(epS)}</div>
+        <div class="mc-sub">${ACCS.length} compte${ACCS.length!==1?'s':''}</div>
+      </div>
+      <div class="mc acc-purple">
+        <div class="mc-icon">💰</div>
+        <div class="mc-label">Épargne totale</div>
+        <div class="mc-val cp">${fmtM(epT)}</div>
+        <div class="mc-sub">Solde + intérêts</div>
+      </div>
+      <div class="mc acc-green">
+        <div class="mc-icon">💸</div>
+        <div class="mc-label">Intérêts cumulés</div>
+        <div class="mc-val cg">${fmtM(epI,true)}</div>
+        <div class="mc-sub">À ce jour</div>
+      </div>
+      <div class="mc acc-orange">
+        <div class="mc-icon">🎯</div>
+        <div class="mc-label">Performance</div>
+        <div class="mc-val"><span class="badge bg-g" style="font-size:15px;padding:4px 10px">+${epR.toFixed(2)} %</span></div>
+        <div class="mc-sub">Taux moyen</div>
+      </div>
+    </div>
+
+    ${ACCS.length?`<div class="lg">
+      ${ACCS.map(a=>{
+        const meta=ACC_META[a.type]||ACC_META.autre;
+        const inter=calcInter(a);
+        return `<div class="lr">
+          <div class="lr-icon" style="background:${meta.bg}">${meta.ico}</div>
+          <div class="lr-body">
+            <div class="lr-title">${a.name}</div>
+            <div class="lr-sub">${a.rate.toFixed(2)}% / an</div>
+          </div>
+          <div class="lr-right">
+            <div class="lr-val">${fmtM(a.solde)}</div>
+            <div class="lr-vsub"><span class="badge bg-g">${fmtM(inter,true)}</span></div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`:''}
+
+    <!-- TOTAL GLOBAL -->
+    <div class="bdiv">
+      <div class="bdiv-line"></div>
+      <div class="bdiv-label bdiv-total">📊 Total global</div>
+      <div class="bdiv-line"></div>
+    </div>
+
+    <div class="lg" style="margin-bottom:16px">
+      <div class="lr">
+        <div class="lr-icon" style="background:var(--blue-bg)">💰</div>
+        <div class="lr-body"><div class="lr-title">Investi + Épargné</div><div class="lr-sub">PEA versé + soldes</div></div>
+        <div class="lr-right"><div class="lr-val cb">${fmtM(peaInv+epS)}</div></div>
+      </div>
+      <div class="lr">
+        <div class="lr-icon" style="background:var(--green-bg)">📈</div>
+        <div class="lr-body"><div class="lr-title">Bénéfices + Intérêts</div><div class="lr-sub">Plus-value PEA + intérêts</div></div>
+        <div class="lr-right"><div class="lr-val ${colN(totGain)}">${fmtM(totGain,true)}</div></div>
+      </div>
+      <div class="lr" style="background:rgba(0,113,227,0.04)">
+        <div class="lr-icon" style="background:var(--purple-bg)">🏆</div>
+        <div class="lr-body"><div class="lr-title" style="font-weight:800;font-size:16px">Patrimoine total</div><div class="lr-sub">PEA valorisé + épargne</div></div>
+        <div class="lr-right"><div class="lr-val" style="font-size:20px;font-weight:900">${fmtM(patri)}</div></div>
+      </div>
+    </div>
+
+    ${(peaPf>0||epS>0)?`
+    <div class="chart-card">
+      <div class="chart-head"><div class="chart-title">Répartition du patrimoine</div></div>
+      <div class="chart-wrap" style="height:180px"><canvas id="bilan-chart"></canvas></div>
+    </div>`:''}
+  `;
+
+  if (peaPf>0||epS>0) {
+    if (bilanChart) bilanChart.destroy();
+    const ctx2=document.getElementById('bilan-chart').getContext('2d');
+    bilanChart=new Chart(ctx2,{
+      type:'doughnut',
+      data:{
+        labels:['PEA','Épargne'],
+        datasets:[{
+          data:[peaPf,epS],
+          backgroundColor:['#4f8ef7','#22c55e'],
+          borderColor:['#14141f','#14141f'],
+          borderWidth:3,hoverOffset:10
+        }]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,cutout:'65%',
+        plugins:{
+          legend:{display:true,position:'bottom',labels:{font:{family:'Inter',size:12},padding:18,color:'rgba(240,240,248,0.7)'}},
+          tooltip:{backgroundColor:'#0f0f1e',titleColor:'rgba(255,255,255,0.5)',bodyColor:'#fff',padding:12,cornerRadius:10,
+            callbacks:{label:c=>`  ${c.label} : ${fmtM(c.raw)} (${patri?(c.raw/patri*100).toFixed(1):'0'}%)`}}
+        }
+      }
+    });
+  }
+}
+
+/* ═══════════════════════════
+   INIT
+═══════════════════════════ */
+(function init() {
+  document.getElementById('pea-date').value = today();
+  document.getElementById('mvt-date').value = today();
+  renderPEA();
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+})();
+</script>
+</body>
+</html>
